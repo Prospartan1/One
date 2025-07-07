@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>We Are One Merch</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f4f4;
+      color: #222;
+    }
+
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    header nav a {
+      color: white;
+      margin-left: 1.5rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .hero {
+      background: #3498db;
+      color: white;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .product-list {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      padding: 2rem;
+    }
+
+    .product {
+      background: white;
+      border-radius: 6px;
+      padding: 1rem;
+      width: 220px;
+      text-align: center;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    }
+
+    .product img {
+      max-width: 100%;
+      border-radius: 4px;
+    }
+
+    button {
+      background: #3498db;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: #2980b9;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #cart {
+      background: white;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 600px;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    #cart-items p {
+      margin: 0.5rem 0;
+    }
+
+    #cart-total {
+      font-weight: bold;
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>We Are One</h1>
+    <nav>
+      <a href="#products">Shop</a>
+      <a href="#cart">Cart (<span id="cart-count">0</span>)</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h2>Bold faith-driven apparel</h2>
+    <p>Wear the Word. Live the Word.</p>
+  </section>
+
+  <section id="products">
+    <h2>Our Merch</h2>
+    <div class="product-list">
+      <div class="product" data-id="1" data-name="Faith T-Shirt" data-price="25">
+        <img src="https://via.placeholder.com/200?text=Faith+T-Shirt" alt="Faith T-Shirt" />
+        <h3>Faith T-Shirt</h3>
+        <p>$25.00</p>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+      <div class="product" data-id="2" data-name="Unity Hoodie" data-price="40">
+        <img src="https://via.placeholder.com/200?text=Unity+Hoodie" alt="Unity Hoodie" />
+        <h3>Unity Hoodie</h3>
+        <p>$40.00</p>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+      <div class="product" data-id="3" data-name="Scripture Cap" data-price="15">
+        <img src="https://via.placeholder.com/200?text=Scripture+Cap" alt="Scripture Cap" />
+        <h3>Scripture Cap</h3>
+        <p>$15.00</p>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="cart">
+    <h2>Your Cart</h2>
+    <div id="cart-items">
+      <p>Your cart is empty.</p>
+    </div>
+    <p id="cart-total"></p>
+    <button id="checkout-btn" disabled>Checkout</button>
+  </section>
+
+  <script>
+    const cart = {};
+    const cartCountElem = document.getElementById('cart-count');
+    const cartItemsElem = document.getElementById('cart-items');
+    const cartTotalElem = document.getElementById('cart-total');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    function updateCartDisplay() {
+      const items = Object.values(cart);
+      if (items.length === 0) {
+        cartItemsElem.innerHTML = '<p>Your cart is empty.</p>';
+        cartTotalElem.textContent = '';
+        checkoutBtn.disabled = true;
+        cartCountElem.textContent = '0';
+        return;
+      }
+
+      let html = '<ul>';
+      let total = 0;
+      items.forEach(item => {
+        html += `<li>${item.name} x ${item.qty} — $${(item.price * item.qty).toFixed(2)}</li>`;
+        total += item.price * item.qty;
+      });
+      html += '</ul>';
+
+      cartItemsElem.innerHTML = html;
+      cartTotalElem.textContent = `Total: $${total.toFixed(2)}`;
+      checkoutBtn.disabled = false;
+      cartCountElem.textContent = items.reduce((sum, i) => sum + i.qty, 0);
+    }
+
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+      button.addEventListener('click', e => {
+        const productElem = e.target.closest('.product');
+        const id = productElem.dataset.id;
+        const name = productElem.dataset.name;
+        const price = parseFloat(productElem.dataset.price);
+
+        if (cart[id]) {
+          cart[id].qty++;
+        } else {
+          cart[id] = { name, price, qty: 1 };
+        }
+
+        updateCartDisplay();
+      });
+    });
+
+    // Simple checkout alert
+    checkoutBtn.addEventListener('click', () => {
+      alert('Thank you for your purchase! This is a demo checkout.');
+      Object.keys(cart).forEach(key => delete cart[key]); // Clear cart
+      updateCartDisplay();
+    });
+
+    updateCartDisplay();
+  </script>
+</body>
+</html>
